@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -13,8 +14,11 @@ namespace Graphics_Topic_3_Animation
 
         Rectangle tribbleBrownRect, tribbleCreamRect, tribbleGreyRect, tribbleOrangeRect, window;
 
-        Vector2 tribbleGreySpeed, tribbleCreamSpeed,
-            tribbleBrownSpeed, tribbleOrangeSpeed;
+        Vector2 tribbleGreySpeed, tribbleCreamSpeed, tribbleBrownSpeed, tribbleOrangeSpeed;
+
+        int randomBrownTribblePositonX, randomBrownTribblePositonY;
+
+        Random randomBrownTribblePosition = new Random();
 
         float orangeRotation;
 
@@ -37,19 +41,19 @@ namespace Graphics_Topic_3_Animation
 
             tribbleGreyRect = new Rectangle(200, 300, 100, 100);
 
-            tribbleGreySpeed = new Vector2(2,4);
+            tribbleGreySpeed = new Vector2(-2,6);
 
             tribbleBrownRect = new Rectangle(10, 10, 100, 100);
 
-            tribbleBrownSpeed = new Vector2(2,2);
+            tribbleBrownSpeed = new Vector2(3,3);
 
             tribbleCreamRect = new Rectangle(10, 10, 100, 100);
 
             tribbleCreamSpeed = new Vector2(0,0);   
 
-            tribbleOrangeRect = new Rectangle(110, 110, 100, 100);
+            tribbleOrangeRect = new Rectangle(110, 500, 100, 100);
 
-            tribbleOrangeSpeed = new Vector2(0,0);
+            tribbleOrangeSpeed = new Vector2(15,-2);
 
             orangeRotation = 0f;
 
@@ -117,21 +121,53 @@ namespace Graphics_Topic_3_Animation
             }
 
 
-            //Collision
+            //Collisions
 
 
-            if (tribbleGreyRect.Intersects(tribbleBrownRect))
+            if (tribbleGreyRect.Intersects(tribbleBrownRect) || (tribbleBrownRect.X + tribbleBrownRect.Width >= window.Width || tribbleBrownRect.X <= window.X))
 
             {
                 tribbleBrownSpeed.X *= -1;
                 tribbleBrownSpeed.Y *= -1;
 
-                tribbleGreySpeed.X *= -1;
-                tribbleGreySpeed.Y *= -1;
+
+                randomBrownTribblePositonX = randomBrownTribblePosition.Next(window.X, window.Width - tribbleBrownRect.Width);
+                randomBrownTribblePositonY = randomBrownTribblePosition.Next(window.Y, window.Height - tribbleBrownRect.Height);
+
+                tribbleBrownRect.X = randomBrownTribblePositonX;
+                tribbleBrownRect.Y = randomBrownTribblePositonY;
+            }
+
+            if ((tribbleBrownRect.Intersects(tribbleOrangeRect)))
+            {
+                randomBrownTribblePositonX = randomBrownTribblePosition.Next(window.X, window.Width - tribbleBrownRect.Width);               
+                randomBrownTribblePositonY = randomBrownTribblePosition.Next(window.Y, window.Height - tribbleBrownRect.Height);
+
+                tribbleBrownRect.X = randomBrownTribblePositonX;
+                tribbleBrownRect.Y = randomBrownTribblePositonY;
+
+            }
+            
+
+
+            //Orange tribble
+
+            tribbleOrangeRect.X += (int)tribbleOrangeSpeed.X;
+            tribbleOrangeRect.Y += (int)tribbleOrangeSpeed.Y;
+
+            if (tribbleOrangeRect.Y <= window.Y - tribbleOrangeRect.Height)
+            {
+                tribbleOrangeRect.Y = window.Height - tribbleOrangeRect.Height;
             }
 
 
 
+            if (tribbleOrangeRect.X >= window.Width + tribbleOrangeRect.Width)
+                tribbleOrangeRect.X = window.X - tribbleOrangeRect.X;
+
+
+
+            orangeRotation += 0.5f;
 
 
             base.Update(gameTime);
@@ -139,7 +175,7 @@ namespace Graphics_Topic_3_Animation
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Transparent);
             
 
             _spriteBatch.Begin();
@@ -150,7 +186,16 @@ namespace Graphics_Topic_3_Animation
 
             _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
 
-            _spriteBatch.Draw(tribbleOrangeTexture, tribbleOrangeRect, null, Color.White, orangeRotation, new Vector2(0, 0), );
+            _spriteBatch.Draw(tribbleOrangeTexture, 
+                new Rectangle(tribbleOrangeRect.X + tribbleOrangeRect.Width / 2, tribbleOrangeRect.Y + tribbleOrangeRect.Height / 2, tribbleOrangeRect.Width, tribbleOrangeRect.Height), 
+                null, 
+                Color.White, 
+                orangeRotation, 
+                new Vector2(tribbleOrangeTexture.Width / 2, tribbleOrangeTexture.Height / 2), 
+                SpriteEffects.None, 
+                0f);
+
+
 
             _spriteBatch.End();
             
