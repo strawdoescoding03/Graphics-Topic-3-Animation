@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -16,11 +19,14 @@ namespace Graphics_Topic_3_Animation
 
         Vector2 tribbleGreySpeed, tribbleCreamSpeed, tribbleBrownSpeed, tribbleOrangeSpeed;
 
-        int randomBrownTribblePositonX, randomBrownTribblePositonY;
+        int randomBrownTribblePositonX, randomBrownTribblePositonY, randomColor;
 
-        Random randomBrownTribblePosition = new Random();
+        static Random generator = new Random();
 
         float orangeRotation;
+
+        List<Color> colors = new();
+
 
         public Game1()
         {
@@ -49,13 +55,46 @@ namespace Graphics_Topic_3_Animation
 
             tribbleCreamRect = new Rectangle(10, 10, 100, 100);
 
-            tribbleCreamSpeed = new Vector2(0,0);   
+            tribbleCreamSpeed = new Vector2(0,50);   
 
             tribbleOrangeRect = new Rectangle(110, 500, 100, 100);
 
             tribbleOrangeSpeed = new Vector2(15,-2);
 
             orangeRotation = 0f;
+
+            colors.Add(Color.Red);
+            colors.Add(Color.Orange);
+            colors.Add(Color.Yellow);
+            colors.Add(Color.Green);
+            colors.Add(Color.Blue);
+            colors.Add(Color.Purple);
+            colors.Add(Color.Azure);
+            colors.Add(Color.DarkGreen);
+            colors.Add(Color.DarkBlue);
+            colors.Add(Color.DarkGray);
+            colors.Add(Color.White);
+            colors.Add(Color.YellowGreen);
+            colors.Add(Color.Bisque);
+            colors.Add(Color.Plum);
+            colors.Add(Color.Aquamarine);
+            colors.Add(Color.Magenta);
+            colors.Add(Color.BlanchedAlmond);
+            colors.Add(Color.Crimson);
+            colors.Add(Color.Maroon);
+            colors.Add(Color.Khaki);
+            colors.Add(Color.Coral);
+            colors.Add(Color.Cyan);
+            colors.Add(Color.AliceBlue);
+            colors.Add(Color.Aqua);
+            colors.Add(Color.Lime);
+            colors.Add(Color.MediumTurquoise);
+
+
+
+
+
+
 
 
             base.Initialize();
@@ -121,18 +160,16 @@ namespace Graphics_Topic_3_Animation
             }
 
 
-            //Collisions
+
+                //Collisions
 
 
-            if (tribbleGreyRect.Intersects(tribbleBrownRect) || (tribbleBrownRect.X + tribbleBrownRect.Width >= window.Width || tribbleBrownRect.X <= window.X))
-
-            {
-                tribbleBrownSpeed.X *= -1;
-                tribbleBrownSpeed.Y *= -1;
+                if (tribbleGreyRect.Intersects(tribbleBrownRect))
 
 
-                randomBrownTribblePositonX = randomBrownTribblePosition.Next(window.X, window.Width - tribbleBrownRect.Width);
-                randomBrownTribblePositonY = randomBrownTribblePosition.Next(window.Y, window.Height - tribbleBrownRect.Height);
+            {   
+                randomBrownTribblePositonX = generator.Next(window.X, window.Width - tribbleBrownRect.Width);
+                randomBrownTribblePositonY = generator.Next(window.Y, window.Height - tribbleBrownRect.Height);
 
                 tribbleBrownRect.X = randomBrownTribblePositonX;
                 tribbleBrownRect.Y = randomBrownTribblePositonY;
@@ -140,8 +177,8 @@ namespace Graphics_Topic_3_Animation
 
             if ((tribbleBrownRect.Intersects(tribbleOrangeRect)))
             {
-                randomBrownTribblePositonX = randomBrownTribblePosition.Next(window.X, window.Width - tribbleBrownRect.Width);               
-                randomBrownTribblePositonY = randomBrownTribblePosition.Next(window.Y, window.Height - tribbleBrownRect.Height);
+                randomBrownTribblePositonX = generator.Next(window.X, window.Width - tribbleBrownRect.Width);               
+                randomBrownTribblePositonY = generator.Next(window.Y, window.Height - tribbleBrownRect.Height);
 
                 tribbleBrownRect.X = randomBrownTribblePositonX;
                 tribbleBrownRect.Y = randomBrownTribblePositonY;
@@ -155,19 +192,48 @@ namespace Graphics_Topic_3_Animation
             tribbleOrangeRect.X += (int)tribbleOrangeSpeed.X;
             tribbleOrangeRect.Y += (int)tribbleOrangeSpeed.Y;
 
+                //X Barriers
+
+            if (tribbleOrangeRect.X >= window.Width + tribbleOrangeRect.Width)
+                tribbleOrangeRect.X = window.X - tribbleOrangeRect.X;
+
+                //Y Barriers
+
             if (tribbleOrangeRect.Y <= window.Y - tribbleOrangeRect.Height)
             {
                 tribbleOrangeRect.Y = window.Height - tribbleOrangeRect.Height;
             }
 
 
-
-            if (tribbleOrangeRect.X >= window.Width + tribbleOrangeRect.Width)
-                tribbleOrangeRect.X = window.X - tribbleOrangeRect.X;
-
-
-
             orangeRotation += 0.5f;
+
+
+            //Cream Trib
+
+            tribbleCreamRect.X += (int)tribbleCreamSpeed.X;
+            tribbleCreamRect.Y += (int)tribbleCreamSpeed.Y;
+
+            //X barriers
+
+            if (tribbleCreamRect.X + tribbleCreamRect.Width >= window.Width || tribbleCreamRect.X <= window.X)
+            {
+                tribbleCreamSpeed.X *= -1;
+                randomColor = generator.Next(colors.Count);
+            }
+            //Y barriers
+
+            if (tribbleCreamRect.Y + tribbleCreamRect.Height > window.Height || tribbleCreamRect.Y <= window.Top)
+            {
+                tribbleCreamSpeed.Y *= -1;
+                randomColor = generator.Next(colors.Count);
+            }
+
+
+
+          
+            
+            
+            
 
 
             base.Update(gameTime);
@@ -175,7 +241,11 @@ namespace Graphics_Topic_3_Animation
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Transparent);
+                   
+                       
+            
+            GraphicsDevice.Clear(colors[randomColor]);
+            
             
 
             _spriteBatch.Begin();
@@ -186,15 +256,18 @@ namespace Graphics_Topic_3_Animation
 
             _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
 
-            _spriteBatch.Draw(tribbleOrangeTexture, 
-                new Rectangle(tribbleOrangeRect.X + tribbleOrangeRect.Width / 2, tribbleOrangeRect.Y + tribbleOrangeRect.Height / 2, tribbleOrangeRect.Width, tribbleOrangeRect.Height), 
-                null, 
-                Color.White, 
-                orangeRotation, 
-                new Vector2(tribbleOrangeTexture.Width / 2, tribbleOrangeTexture.Height / 2), 
-                SpriteEffects.None, 
+
+            _spriteBatch.Draw(tribbleOrangeTexture,
+                new Rectangle(tribbleOrangeRect.X + tribbleOrangeRect.Width / 2, tribbleOrangeRect.Y + tribbleOrangeRect.Height / 2, tribbleOrangeRect.Width, tribbleOrangeRect.Height),
+                null,
+                Color.White,
+                orangeRotation,
+                new Vector2(tribbleOrangeTexture.Width / 2, tribbleOrangeTexture.Height / 2),
+                SpriteEffects.None,
                 0f);
 
+
+            _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
 
 
             _spriteBatch.End();
