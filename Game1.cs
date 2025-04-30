@@ -13,13 +13,18 @@ namespace Graphics_Topic_3_Animation
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        Texture2D tribbleBrownTexture, tribbleCreamTexture, tribbleGreyTexture, tribbleOrangeTexture;
+        Texture2D tribbleBrownTexture, tribbleCreamTexture, tribbleGreyTexture, tribbleOrangeTexture,
+            cannonMinHeight, cannonMidHeight, cannonMaxHeight;
 
-        Rectangle tribbleBrownRect, tribbleCreamRect, tribbleGreyRect, tribbleOrangeRect, window;
+        Rectangle tribbleBrownRect, tribbleCreamRect, tribbleGreyRect, tribbleOrangeRect, window,
+            cannonRect;
 
         Vector2 tribbleGreySpeed, tribbleCreamSpeed, tribbleBrownSpeed, tribbleOrangeSpeed;
-
-        int randomBrownTribblePositonX, randomBrownTribblePositonY, randomColor;
+            
+        SpriteFont creamTribbleCountFont;
+        
+        
+        int randomBrownTribblePositonX, randomBrownTribblePositonY, randomColor, creamTribbleCount, cannonCount;
 
         static Random generator = new Random();
 
@@ -27,6 +32,7 @@ namespace Graphics_Topic_3_Animation
 
         List<Color> colors = new();
 
+        List<Texture2D> cannonTexture = new();
 
         public Game1()
         {
@@ -57,9 +63,11 @@ namespace Graphics_Topic_3_Animation
 
             tribbleCreamSpeed = new Vector2(0,50);   
 
-            tribbleOrangeRect = new Rectangle(110, 500, 100, 100);
+            tribbleOrangeRect = new Rectangle(800, 325, 100, 100);
 
-            tribbleOrangeSpeed = new Vector2(15,-2);
+            tribbleOrangeSpeed = new Vector2(-15, -3);
+
+            cannonRect = new Rectangle(550, 360, 300, 300);
 
             orangeRotation = 0f;
 
@@ -91,11 +99,9 @@ namespace Graphics_Topic_3_Animation
             colors.Add(Color.MediumTurquoise);
 
 
+            creamTribbleCount = 0;
 
-
-
-
-
+            
 
             base.Initialize();
 
@@ -111,6 +117,20 @@ namespace Graphics_Topic_3_Animation
             tribbleCreamTexture = Content.Load<Texture2D>("tribbleCream");
             tribbleGreyTexture = Content.Load<Texture2D>("tribbleGrey");
             tribbleOrangeTexture = Content.Load<Texture2D>("tribbleOrange");
+            creamTribbleCountFont = Content.Load<SpriteFont>("creamCounterFont");
+
+            cannonMinHeight = Content.Load<Texture2D>("cannonMinHeight");
+
+            cannonMidHeight = Content.Load<Texture2D>("cannonMidHeight");
+
+            cannonMaxHeight = Content.Load<Texture2D>("cannonMaxHeight");
+
+
+            cannonTexture.Add(cannonMinHeight);
+            cannonTexture.Add(cannonMidHeight);
+            cannonTexture.Add(cannonMaxHeight);
+
+
 
             // TODO: use this.Content to load your game content here
         }
@@ -192,16 +212,20 @@ namespace Graphics_Topic_3_Animation
             tribbleOrangeRect.X += (int)tribbleOrangeSpeed.X;
             tribbleOrangeRect.Y += (int)tribbleOrangeSpeed.Y;
 
-                //X Barriers
+            //X Barriers
 
-            if (tribbleOrangeRect.X >= window.Width + tribbleOrangeRect.Width)
-                tribbleOrangeRect.X = window.X - tribbleOrangeRect.X;
-
+            if (tribbleOrangeRect.X <= 0 - tribbleOrangeRect.Width)
+            {
+                tribbleOrangeRect.X = window.Width + tribbleOrangeRect.X;
+                cannonCount++;
+            }                 
+                                                                                
+                
                 //Y Barriers
 
             if (tribbleOrangeRect.Y <= window.Y - tribbleOrangeRect.Height)
             {
-                tribbleOrangeRect.Y = window.Height - tribbleOrangeRect.Height;
+                tribbleOrangeRect.Y = 360;
             }
 
 
@@ -213,19 +237,18 @@ namespace Graphics_Topic_3_Animation
             tribbleCreamRect.X += (int)tribbleCreamSpeed.X;
             tribbleCreamRect.Y += (int)tribbleCreamSpeed.Y;
 
-            //X barriers
-
-            if (tribbleCreamRect.X + tribbleCreamRect.Width >= window.Width || tribbleCreamRect.X <= window.X)
-            {
-                tribbleCreamSpeed.X *= -1;
-                randomColor = generator.Next(colors.Count);
-            }
             //Y barriers
 
             if (tribbleCreamRect.Y + tribbleCreamRect.Height > window.Height || tribbleCreamRect.Y <= window.Top)
             {
                 tribbleCreamSpeed.Y *= -1;
-                randomColor = generator.Next(colors.Count);
+                //randomColor = generator.Next(colors.Count);
+                creamTribbleCount += 1;
+
+                if (creamTribbleCount > 1000)
+                {
+                    creamTribbleCount = 0;
+                }
             }
 
 
@@ -241,12 +264,11 @@ namespace Graphics_Topic_3_Animation
 
         protected override void Draw(GameTime gameTime)
         {
-                   
-                       
-            
+
+
+
             GraphicsDevice.Clear(colors[randomColor]);
-            
-            
+
 
             _spriteBatch.Begin();
 
@@ -268,8 +290,10 @@ namespace Graphics_Topic_3_Animation
 
 
             _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
+            
+            _spriteBatch.DrawString(creamTribbleCountFont, Convert.ToString(creamTribbleCount), new Vector2(249, 120), Color.Black);
 
-
+            _spriteBatch.Draw(texture: cannonTexture[0], cannonRect, Color.White);
             _spriteBatch.End();
             
             
