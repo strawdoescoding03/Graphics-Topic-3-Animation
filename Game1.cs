@@ -8,13 +8,21 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Graphics_Topic_3_Animation
 {
+
+    enum Screen 
+    {
+        Intro,
+        TribbleYard,
+        EndScreen
+    }
+
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
         Texture2D tribbleBrownTexture, tribbleCreamTexture, tribbleGreyTexture, tribbleOrangeTexture,
-            cannonMinHeight, cannonMidHeight, cannonMaxHeight;
+            cannonMinHeight, cannonMidHeight, cannonMaxHeight, tribbleIntroTexture, tribbleEndScreenTexture;
 
         Rectangle tribbleBrownRect, tribbleCreamRect, tribbleGreyRect, tribbleOrangeRect, window,
             cannonRect;
@@ -34,6 +42,11 @@ namespace Graphics_Topic_3_Animation
 
         List<Texture2D> cannonTexture = new();
 
+        Screen screen;
+
+        MouseState mouseState;
+
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -44,6 +57,8 @@ namespace Graphics_Topic_3_Animation
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+
+            screen = Screen.EndScreen;
 
             _graphics.PreferredBackBufferWidth = 800;
             _graphics.PreferredBackBufferHeight = 600;
@@ -118,7 +133,10 @@ namespace Graphics_Topic_3_Animation
             tribbleGreyTexture = Content.Load<Texture2D>("tribbleGrey");
             tribbleOrangeTexture = Content.Load<Texture2D>("tribbleOrange");
             creamTribbleCountFont = Content.Load<SpriteFont>("creamCounterFont");
-
+            tribbleIntroTexture = Content.Load<Texture2D>("tribbleStartPage");
+            tribbleEndScreenTexture = Content.Load<Texture2D>("gameEndScreen");
+            
+            
             cannonMinHeight = Content.Load<Texture2D>("cannonMinHeight");
 
             cannonMidHeight = Content.Load<Texture2D>("cannonMidHeight");
@@ -137,47 +155,63 @@ namespace Graphics_Topic_3_Animation
 
         protected override void Update(GameTime gameTime)
         {
+            mouseState = Mouse.GetState();
+            
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
             // TODO: Add your update logic here
 
-            //Grey Trib
-            
-            tribbleGreyRect.X += (int)tribbleGreySpeed.X;
-            tribbleGreyRect.Y += (int)tribbleGreySpeed.Y;
-                        
-                //X barriers
-            
-            if (tribbleGreyRect.X + tribbleGreyRect.Width >= window.Width || tribbleGreyRect.X <= window.X)
-            {
-                tribbleGreySpeed.X *= -1;
-            }
-               //Y barriers
 
-            if (tribbleGreyRect.Y + tribbleGreyRect.Height > window.Height || tribbleGreyRect.Y <= window.Top)
+            if (screen == Screen.Intro)
             {
-                tribbleGreySpeed.Y *= -1;
+                if (mouseState.LeftButton == ButtonState.Pressed)
+
+                {
+                    screen = Screen.TribbleYard;
+                }
+                           
+            
             }
 
+            if (screen == Screen.TribbleYard)
+            {
+                //Grey Trib
 
-            //Brown trib
-
-            tribbleBrownRect.X += (int)tribbleBrownSpeed.X;
-            tribbleBrownRect.Y += (int)tribbleBrownSpeed.Y;
+                tribbleGreyRect.X += (int)tribbleGreySpeed.X;
+                tribbleGreyRect.Y += (int)tribbleGreySpeed.Y;
 
                 //X barriers
 
-            if (tribbleBrownRect.X + tribbleBrownRect.Width >= window.Width || tribbleBrownRect.X <= window.X)
-            {
-                tribbleBrownSpeed.X *= -1;
-            }
+                if (tribbleGreyRect.X + tribbleGreyRect.Width >= window.Width || tribbleGreyRect.X <= window.X)
+                {
+                    tribbleGreySpeed.X *= -1;
+                }
                 //Y barriers
 
-            if (tribbleBrownRect.Y + tribbleBrownRect.Height > window.Height || tribbleBrownRect.Y <= window.Top)
-            {
-                tribbleBrownSpeed.Y *= -1;
-            }
+                if (tribbleGreyRect.Y + tribbleGreyRect.Height > window.Height || tribbleGreyRect.Y <= window.Top)
+                {
+                    tribbleGreySpeed.Y *= -1;
+                }
+
+
+                //Brown trib
+
+                tribbleBrownRect.X += (int)tribbleBrownSpeed.X;
+                tribbleBrownRect.Y += (int)tribbleBrownSpeed.Y;
+
+                //X barriers
+
+                if (tribbleBrownRect.X + tribbleBrownRect.Width >= window.Width || tribbleBrownRect.X <= window.X)
+                {
+                    tribbleBrownSpeed.X *= -1;
+                }
+                //Y barriers
+
+                if (tribbleBrownRect.Y + tribbleBrownRect.Height > window.Height || tribbleBrownRect.Y <= window.Top)
+                {
+                    tribbleBrownSpeed.Y *= -1;
+                }
 
 
 
@@ -187,74 +221,75 @@ namespace Graphics_Topic_3_Animation
                 if (tribbleGreyRect.Intersects(tribbleBrownRect))
 
 
-            {   
-                randomBrownTribblePositonX = generator.Next(window.X, window.Width - tribbleBrownRect.Width);
-                randomBrownTribblePositonY = generator.Next(window.Y, window.Height - tribbleBrownRect.Height);
+                {
+                    randomBrownTribblePositonX = generator.Next(window.X, window.Width - tribbleBrownRect.Width);
+                    randomBrownTribblePositonY = generator.Next(window.Y, window.Height - tribbleBrownRect.Height);
 
-                tribbleBrownRect.X = randomBrownTribblePositonX;
-                tribbleBrownRect.Y = randomBrownTribblePositonY;
-            }
+                    tribbleBrownRect.X = randomBrownTribblePositonX;
+                    tribbleBrownRect.Y = randomBrownTribblePositonY;
+                }
 
-            if ((tribbleBrownRect.Intersects(tribbleOrangeRect)))
-            {
-                randomBrownTribblePositonX = generator.Next(window.X, window.Width - tribbleBrownRect.Width);               
-                randomBrownTribblePositonY = generator.Next(window.Y, window.Height - tribbleBrownRect.Height);
+                if ((tribbleBrownRect.Intersects(tribbleOrangeRect)))
+                {
+                    randomBrownTribblePositonX = generator.Next(window.X, window.Width - tribbleBrownRect.Width);
+                    randomBrownTribblePositonY = generator.Next(window.Y, window.Height - tribbleBrownRect.Height);
 
-                tribbleBrownRect.X = randomBrownTribblePositonX;
-                tribbleBrownRect.Y = randomBrownTribblePositonY;
+                    tribbleBrownRect.X = randomBrownTribblePositonX;
+                    tribbleBrownRect.Y = randomBrownTribblePositonY;
 
-            }
-            
+                }
 
 
-            //Orange tribble
 
-            tribbleOrangeRect.X += (int)tribbleOrangeSpeed.X;
-            tribbleOrangeRect.Y += (int)tribbleOrangeSpeed.Y;
+                //Orange tribble
 
-            //X Barriers
+                tribbleOrangeRect.X += (int)tribbleOrangeSpeed.X;
+                tribbleOrangeRect.Y += (int)tribbleOrangeSpeed.Y;
 
-            if (tribbleOrangeRect.X <= 0 - tribbleOrangeRect.Width)
-            {
-                tribbleOrangeRect.X = window.Width + tribbleOrangeRect.X;
-                cannonCount++;
-            }                 
-                                                                                
-                
+                //X Barriers
+
+                if (tribbleOrangeRect.X <= 0 - tribbleOrangeRect.Width)
+                {
+                    tribbleOrangeRect.X = window.Width + tribbleOrangeRect.X;
+                    cannonCount++;
+                }
+
+
                 //Y Barriers
 
-            if (tribbleOrangeRect.Y <= window.Y - tribbleOrangeRect.Height)
-            {
-                tribbleOrangeRect.Y = 360;
-            }
-
-
-            orangeRotation += 0.5f;
-
-
-            //Cream Trib
-
-            tribbleCreamRect.X += (int)tribbleCreamSpeed.X;
-            tribbleCreamRect.Y += (int)tribbleCreamSpeed.Y;
-
-            //Y barriers
-
-            if (tribbleCreamRect.Y + tribbleCreamRect.Height > window.Height || tribbleCreamRect.Y <= window.Top)
-            {
-                tribbleCreamSpeed.Y *= -1;
-                //randomColor = generator.Next(colors.Count);
-                creamTribbleCount += 1;
-
-                if (creamTribbleCount > 1000)
+                if (tribbleOrangeRect.Y <= window.Y - tribbleOrangeRect.Height)
                 {
-                    creamTribbleCount = 0;
+                    tribbleOrangeRect.Y = 360;
                 }
+
+
+                orangeRotation += 0.5f;
+
+
+                //Cream Trib
+
+                tribbleCreamRect.X += (int)tribbleCreamSpeed.X;
+                tribbleCreamRect.Y += (int)tribbleCreamSpeed.Y;
+
+                //Y barriers
+
+                if (tribbleCreamRect.Y + tribbleCreamRect.Height > window.Height || tribbleCreamRect.Y <= window.Top)
+                {
+                    tribbleCreamSpeed.Y *= -1;
+                    randomColor = generator.Next(colors.Count);
+                    creamTribbleCount += 1;
+
+                    if (creamTribbleCount > 1000)
+                    {
+                        creamTribbleCount = 0;
+                    }
+                }
+
+
+
+
+
             }
-
-
-
-          
-            
             
             
 
@@ -265,35 +300,52 @@ namespace Graphics_Topic_3_Animation
         protected override void Draw(GameTime gameTime)
         {
 
-
-
             GraphicsDevice.Clear(colors[randomColor]);
-
 
             _spriteBatch.Begin();
 
-            _spriteBatch.Draw(tribbleGreyTexture, tribbleGreyRect, Color.White);
 
-            _spriteBatch.Draw(tribbleBrownTexture, tribbleBrownRect, Color.White);
+            if (screen == Screen.Intro)
 
-            _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
+            {
+                _spriteBatch.Draw(tribbleIntroTexture, window, Color.White);
+            }
+
+            else if (screen == Screen.TribbleYard)
+
+            {
+                _spriteBatch.Draw(tribbleGreyTexture, tribbleGreyRect, Color.White);
+
+                _spriteBatch.Draw(tribbleBrownTexture, tribbleBrownRect, Color.White);
+
+                _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
 
 
-            _spriteBatch.Draw(tribbleOrangeTexture,
-                new Rectangle(tribbleOrangeRect.X + tribbleOrangeRect.Width / 2, tribbleOrangeRect.Y + tribbleOrangeRect.Height / 2, tribbleOrangeRect.Width, tribbleOrangeRect.Height),
-                null,
-                Color.White,
-                orangeRotation,
-                new Vector2(tribbleOrangeTexture.Width / 2, tribbleOrangeTexture.Height / 2),
-                SpriteEffects.None,
-                0f);
+                _spriteBatch.Draw(tribbleOrangeTexture,
+                    new Rectangle(tribbleOrangeRect.X + tribbleOrangeRect.Width / 2, tribbleOrangeRect.Y + tribbleOrangeRect.Height / 2, tribbleOrangeRect.Width, tribbleOrangeRect.Height),
+                    null,
+                    Color.White,
+                    orangeRotation,
+                    new Vector2(tribbleOrangeTexture.Width / 2, tribbleOrangeTexture.Height / 2),
+                    SpriteEffects.None,
+                    0f);
 
 
-            _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
-            
-            _spriteBatch.DrawString(creamTribbleCountFont, Convert.ToString(creamTribbleCount), new Vector2(249, 120), Color.Black);
+                _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
 
-            _spriteBatch.Draw(texture: cannonTexture[0], cannonRect, Color.White);
+                _spriteBatch.DrawString(creamTribbleCountFont, Convert.ToString(creamTribbleCount), new Vector2(249, 120), Color.Black);
+
+                _spriteBatch.Draw(texture: cannonTexture[0], cannonRect, Color.White);
+            }
+
+
+            else if (screen == Screen.EndScreen)
+
+            {
+                _spriteBatch.Draw(tribbleEndScreenTexture, window, Color.White);
+            }
+
+
             _spriteBatch.End();
             
             
