@@ -27,12 +27,13 @@ namespace Graphics_Topic_3_Animation
         Rectangle tribbleBrownRect, tribbleCreamRect, tribbleGreyRect, tribbleOrangeRect, window,
             cannonRect;
 
-        Vector2 tribbleGreySpeed, tribbleCreamSpeed, tribbleBrownSpeed, tribbleOrangeSpeed;
+        Vector2 tribbleGreySpeed, tribbleCreamSpeed, tribbleBrownSpeed,
+            tribbleOrangeSpeedMin, tribbleOrangeSpeedMid, tribbleOrangeSpeedMax; 
             
         SpriteFont creamTribbleCountFont;
         
         
-        int randomBrownTribblePositonX, randomBrownTribblePositonY, randomColor, creamTribbleCount, cannonCount;
+        int randomBrownTribblePositonX, randomBrownTribblePositonY, randomColor, creamTribbleCount, cannonCount, tribbleDeathCount;
 
         static Random generator = new Random();
 
@@ -58,13 +59,13 @@ namespace Graphics_Topic_3_Animation
         {
             // TODO: Add your initialization logic here
 
-            screen = Screen.EndScreen;
+            screen = Screen.Intro;
 
             _graphics.PreferredBackBufferWidth = 800;
-            _graphics.PreferredBackBufferHeight = 600;
+            _graphics.PreferredBackBufferHeight = 700;
             _graphics.ApplyChanges();
 
-            window = new Rectangle(0, 0, 800, 600);
+            window = new Rectangle(0, 0, 800, 700);
 
             tribbleGreyRect = new Rectangle(200, 300, 100, 100);
 
@@ -74,15 +75,19 @@ namespace Graphics_Topic_3_Animation
 
             tribbleBrownSpeed = new Vector2(3,3);
 
-            tribbleCreamRect = new Rectangle(10, 10, 100, 100);
+            tribbleCreamRect = new Rectangle(700, 10, 100, 100);
 
-            tribbleCreamSpeed = new Vector2(0,50);   
+            tribbleCreamSpeed = new Vector2(0,50);
 
-            tribbleOrangeRect = new Rectangle(800, 325, 100, 100);
+            tribbleOrangeRect = new Rectangle(110, 500, 100, 100);
 
-            tribbleOrangeSpeed = new Vector2(-15, -3);
+            tribbleOrangeSpeedMin = new Vector2(8, -1);
+            tribbleOrangeSpeedMid = new Vector2(8, -8);
+            tribbleOrangeSpeedMax = new Vector2(8, -16);
 
-            cannonRect = new Rectangle(550, 360, 300, 300);
+
+
+            cannonRect = new Rectangle(-130, 370, 400, 400);
 
             orangeRotation = 0f;
 
@@ -137,11 +142,11 @@ namespace Graphics_Topic_3_Animation
             tribbleEndScreenTexture = Content.Load<Texture2D>("gameEndScreen");
             
             
-            cannonMinHeight = Content.Load<Texture2D>("cannonMinHeight");
+            cannonMinHeight = Content.Load<Texture2D>("cannonHeight1");
 
-            cannonMidHeight = Content.Load<Texture2D>("cannonMidHeight");
+            cannonMidHeight = Content.Load<Texture2D>("cannonHeight2");
 
-            cannonMaxHeight = Content.Load<Texture2D>("cannonMaxHeight");
+            cannonMaxHeight = Content.Load<Texture2D>("cannonHeight3");
 
 
             cannonTexture.Add(cannonMinHeight);
@@ -155,6 +160,9 @@ namespace Graphics_Topic_3_Animation
 
         protected override void Update(GameTime gameTime)
         {
+
+            this.Window.Title = "x = " + tribbleOrangeRect.X + " y = " + tribbleOrangeRect.Y;
+
             mouseState = Mouse.GetState();
             
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -243,27 +251,54 @@ namespace Graphics_Topic_3_Animation
 
                 //Orange tribble
 
-                tribbleOrangeRect.X += (int)tribbleOrangeSpeed.X;
-                tribbleOrangeRect.Y += (int)tribbleOrangeSpeed.Y;
+                //Min Cannon
 
-                //X Barriers
-
-                if (tribbleOrangeRect.X <= 0 - tribbleOrangeRect.Width)
+                if (cannonCount == 0)
                 {
-                    tribbleOrangeRect.X = window.Width + tribbleOrangeRect.X;
-                    cannonCount++;
+                    tribbleOrangeRect.X += (int)tribbleOrangeSpeedMin.X;
+                    tribbleOrangeRect.Y += (int)tribbleOrangeSpeedMin.Y;
+                }
+                
+                else if (cannonCount == 1)
+
+                {
+                    tribbleOrangeRect.X += (int)tribbleOrangeSpeedMid.X;
+                    tribbleOrangeRect.Y += (int)tribbleOrangeSpeedMid.Y;
+                }
+
+                else if (cannonCount == 2)
+                {
+                    tribbleOrangeRect.X += (int)tribbleOrangeSpeedMax.X;
+                    tribbleOrangeRect.Y += (int)tribbleOrangeSpeedMax.Y;
                 }
 
 
-                //Y Barriers
-
-                if (tribbleOrangeRect.Y <= window.Y - tribbleOrangeRect.Height)
+                if (tribbleOrangeRect.X == 806 && tribbleOrangeRect.Y == 413)
                 {
-                    tribbleOrangeRect.Y = 360;
+
+                    tribbleOrangeRect.X = 100;
+                    tribbleOrangeRect.Y = 500;
+                    cannonCount++;
+
+                }
+
+                else if (tribbleOrangeRect.X <= window.X - tribbleOrangeRect.X)
+                {
+                    tribbleOrangeRect.X = 40;
+                    tribbleOrangeRect.Y = 500;
+                    cannonCount++;
+                }
+
+                if (cannonCount == 3)
+                {
+                    cannonCount = 0;
                 }
 
 
                 orangeRotation += 0.5f;
+
+                if (tribbleOrangeRect.X >= window.Width + tribbleOrangeRect.Width)
+                    tribbleOrangeRect.X = window.X - tribbleOrangeRect.X;
 
 
                 //Cream Trib
@@ -279,7 +314,7 @@ namespace Graphics_Topic_3_Animation
                     randomColor = generator.Next(colors.Count);
                     creamTribbleCount += 1;
 
-                    if (creamTribbleCount > 1000)
+                    if (creamTribbleCount > 696)
                     {
                         creamTribbleCount = 0;
                     }
@@ -320,22 +355,64 @@ namespace Graphics_Topic_3_Animation
 
                 _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
 
+                if (cannonCount == 0)
+                {
+                    _spriteBatch.Draw(tribbleOrangeTexture,
+                   new Rectangle(tribbleOrangeRect.X + tribbleOrangeRect.Width / 2, tribbleOrangeRect.Y + tribbleOrangeRect.Height / 2, tribbleOrangeRect.Width, tribbleOrangeRect.Height),
+                   null,
+                   Color.White,
+                   orangeRotation,
+                   new Vector2(tribbleOrangeTexture.Width / 2, tribbleOrangeTexture.Height / 2),
+                   SpriteEffects.None,
+                   0f);
 
-                _spriteBatch.Draw(tribbleOrangeTexture,
-                    new Rectangle(tribbleOrangeRect.X + tribbleOrangeRect.Width / 2, tribbleOrangeRect.Y + tribbleOrangeRect.Height / 2, tribbleOrangeRect.Width, tribbleOrangeRect.Height),
-                    null,
-                    Color.White,
-                    orangeRotation,
-                    new Vector2(tribbleOrangeTexture.Width / 2, tribbleOrangeTexture.Height / 2),
-                    SpriteEffects.None,
-                    0f);
+                    _spriteBatch.Draw(texture: cannonTexture[0], cannonRect, Color.White);
+                }
+
+
+                else if (cannonCount == 1)
+                {
+                    _spriteBatch.Draw(tribbleOrangeTexture,
+                   new Rectangle(tribbleOrangeRect.X + tribbleOrangeRect.Width / 2, tribbleOrangeRect.Y + tribbleOrangeRect.Height / 2, tribbleOrangeRect.Width, tribbleOrangeRect.Height),
+                   null,
+                   Color.White,
+                   orangeRotation,
+                   new Vector2(tribbleOrangeTexture.Width / 2, tribbleOrangeTexture.Height / 2),
+                   SpriteEffects.None,
+                   0f);
+
+                    _spriteBatch.Draw(texture: cannonTexture[1], cannonRect, Color.White);
+                }
+
+                else if (cannonCount == 2)
+                {
+                    _spriteBatch.Draw(tribbleOrangeTexture,
+                   new Rectangle(tribbleOrangeRect.X + tribbleOrangeRect.Width / 2, tribbleOrangeRect.Y + tribbleOrangeRect.Height / 2, tribbleOrangeRect.Width, tribbleOrangeRect.Height),
+                   null,
+                   Color.White,
+                   orangeRotation,
+                   new Vector2(tribbleOrangeTexture.Width / 2, tribbleOrangeTexture.Height / 2),
+                   SpriteEffects.None,
+                   0f);
+
+                    _spriteBatch.Draw(texture: cannonTexture[2], cannonRect, Color.White);
+                }
 
 
                 _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
 
                 _spriteBatch.DrawString(creamTribbleCountFont, Convert.ToString(creamTribbleCount), new Vector2(249, 120), Color.Black);
 
-                _spriteBatch.Draw(texture: cannonTexture[0], cannonRect, Color.White);
+
+
+
+
+
+
+
+
+
+
             }
 
 

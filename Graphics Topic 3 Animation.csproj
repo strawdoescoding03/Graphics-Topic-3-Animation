@@ -11,6 +11,9 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Content\cannonMaxHeight.png" />
+    <None Remove="Content\cannonMidHeight.png" />
+    <None Remove="Content\cannonMinHeight.png" />
     <None Remove="Icon.ico" />
     <None Remove="Icon.bmp" />
   </ItemGroup>
