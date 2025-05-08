@@ -21,7 +21,8 @@ namespace Graphics_Topic_3_Animation
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        Texture2D tribbleBrownTexture, tribbleCreamTexture, tribbleGreyTexture, tribbleOrangeTexture,
+        Texture2D tribbleBrownTexture, tribbleBrownDeadTexture, tribbleCreamTexture, tribbleCreamDeadTexture, 
+            tribbleGreyTexture, tribbleGreyDeadTexture, tribbleOrangeTexture,
             cannonMinHeight, cannonMidHeight, cannonMaxHeight, tribbleIntroTexture, tribbleEndScreenTexture;
 
         Rectangle tribbleBrownRect, tribbleCreamRect, tribbleGreyRect, tribbleOrangeRect, window,
@@ -33,7 +34,8 @@ namespace Graphics_Topic_3_Animation
         SpriteFont creamTribbleCountFont;
         
         
-        int randomBrownTribblePositonX, randomBrownTribblePositonY, randomColor, creamTribbleCount, cannonCount, tribbleDeathCount;
+        int randomBrownTribblePositonX, randomBrownTribblePositonY, randomColor, creamTribbleCount, cannonCount, tribbleBrownDeathCount,
+            tribbleCreamDeathCount;
 
         static Random generator = new Random();
 
@@ -46,6 +48,8 @@ namespace Graphics_Topic_3_Animation
         Screen screen;
 
         MouseState mouseState;
+
+        bool brownTribbleDead = false, greyTribbleDead = false, creamTribbleDead = false;
 
 
         public Game1()
@@ -67,7 +71,7 @@ namespace Graphics_Topic_3_Animation
 
             window = new Rectangle(0, 0, 800, 700);
 
-            tribbleGreyRect = new Rectangle(200, 300, 100, 100);
+            tribbleGreyRect = new Rectangle(700, 0, 100, 100);
 
             tribbleGreySpeed = new Vector2(-2,6);
 
@@ -134,8 +138,11 @@ namespace Graphics_Topic_3_Animation
 
 
             tribbleBrownTexture = Content.Load<Texture2D>("tribbleBrown");
+            tribbleBrownDeadTexture = Content.Load<Texture2D>("brownTribbleDead");
             tribbleCreamTexture = Content.Load<Texture2D>("tribbleCream");
+            tribbleCreamDeadTexture = Content.Load<Texture2D>("creamTribbleDead");
             tribbleGreyTexture = Content.Load<Texture2D>("tribbleGrey");
+            tribbleGreyDeadTexture = Content.Load<Texture2D>("greyTribbleDead");
             tribbleOrangeTexture = Content.Load<Texture2D>("tribbleOrange");
             creamTribbleCountFont = Content.Load<SpriteFont>("creamCounterFont");
             tribbleIntroTexture = Content.Load<Texture2D>("tribbleStartPage");
@@ -237,16 +244,6 @@ namespace Graphics_Topic_3_Animation
                     tribbleBrownRect.Y = randomBrownTribblePositonY;
                 }
 
-                if ((tribbleBrownRect.Intersects(tribbleOrangeRect)))
-                {
-                    randomBrownTribblePositonX = generator.Next(window.X, window.Width - tribbleBrownRect.Width);
-                    randomBrownTribblePositonY = generator.Next(window.Y, window.Height - tribbleBrownRect.Height);
-
-                    tribbleBrownRect.X = randomBrownTribblePositonX;
-                    tribbleBrownRect.Y = randomBrownTribblePositonY;
-
-                }
-
 
 
                 //Orange tribble
@@ -258,7 +255,7 @@ namespace Graphics_Topic_3_Animation
                     tribbleOrangeRect.X += (int)tribbleOrangeSpeedMin.X;
                     tribbleOrangeRect.Y += (int)tribbleOrangeSpeedMin.Y;
                 }
-                
+
                 else if (cannonCount == 1)
 
                 {
@@ -300,6 +297,51 @@ namespace Graphics_Topic_3_Animation
                 if (tribbleOrangeRect.X >= window.Width + tribbleOrangeRect.Width)
                     tribbleOrangeRect.X = window.X - tribbleOrangeRect.X;
 
+                //Orange Tribble Death Collisions
+
+                if ((tribbleBrownRect.Intersects(tribbleOrangeRect)))
+                {
+                    tribbleBrownDeathCount++;
+
+                    randomBrownTribblePositonX = generator.Next(window.X, window.Width - tribbleBrownRect.Width);
+                    randomBrownTribblePositonY = generator.Next(window.Y, window.Height - tribbleBrownRect.Height);
+
+                    tribbleBrownRect.X = randomBrownTribblePositonX;
+                    tribbleBrownRect.Y = randomBrownTribblePositonY;
+
+                    if (tribbleBrownDeathCount >= 3)
+                    {
+                        brownTribbleDead = true;
+                        tribbleBrownSpeed.X = 0;
+                        tribbleBrownSpeed.Y = 0;
+                    }
+                }
+
+                else if (tribbleOrangeRect.Intersects(tribbleGreyRect))
+
+                {
+
+                    greyTribbleDead = true;
+                    tribbleGreySpeed.X = 0;
+                    tribbleGreySpeed.Y = 0;
+
+                }
+
+                else if (tribbleOrangeRect.Intersects(tribbleCreamRect) && 
+                    tribbleCreamRect.Y != window.Top && tribbleCreamRect.Y != window.Bottom)
+                {
+                    tribbleCreamDeathCount++;
+
+                    if (tribbleCreamDeathCount > 50)
+                    {
+                        creamTribbleDead = true;
+                        tribbleCreamSpeed.X = 0;
+                        tribbleCreamSpeed.Y = 0;
+                    }
+                   
+                }
+
+
 
                 //Cream Trib
 
@@ -321,11 +363,14 @@ namespace Graphics_Topic_3_Animation
                 }
 
 
-
-
-
             }
+
+            if (brownTribbleDead == true && creamTribbleDead == true && greyTribbleDead == true)
+
+            {
+                screen = Screen.EndScreen;
             
+            }
             
 
 
@@ -349,11 +394,33 @@ namespace Graphics_Topic_3_Animation
             else if (screen == Screen.TribbleYard)
 
             {
-                _spriteBatch.Draw(tribbleGreyTexture, tribbleGreyRect, Color.White);
+               
+                // Brown Tribble Draw Condition
 
-                _spriteBatch.Draw(tribbleBrownTexture, tribbleBrownRect, Color.White);
+                if (brownTribbleDead == false)
+                    _spriteBatch.Draw(tribbleBrownTexture, tribbleBrownRect, Color.White);
 
-                _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
+                else if (brownTribbleDead == true)
+                    _spriteBatch.Draw(tribbleBrownDeadTexture, tribbleBrownRect, Color.Red);
+
+
+                // Cream Tribble Draw Condition
+
+                if (creamTribbleDead == false)
+                    _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
+
+
+                else if (creamTribbleDead == true)
+                    _spriteBatch.Draw(tribbleCreamDeadTexture, tribbleCreamRect, Color.White);
+
+                // Grey Tribble Draw Condition
+
+                if (greyTribbleDead == false)
+                
+                    _spriteBatch.Draw(tribbleGreyTexture, tribbleGreyRect, Color.White);
+
+                else if (greyTribbleDead == true)                
+                    _spriteBatch.Draw(tribbleGreyDeadTexture, tribbleGreyRect, Color.White);
 
                 if (cannonCount == 0)
                 {
@@ -398,10 +465,9 @@ namespace Graphics_Topic_3_Animation
                     _spriteBatch.Draw(texture: cannonTexture[2], cannonRect, Color.White);
                 }
 
-
-                _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
-
                 _spriteBatch.DrawString(creamTribbleCountFont, Convert.ToString(creamTribbleCount), new Vector2(249, 120), Color.Black);
+
+
 
 
 
