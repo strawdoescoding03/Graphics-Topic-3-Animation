@@ -145,7 +145,7 @@ namespace Graphics_Topic_3_Animation
             tribbleGreyDeadTexture = Content.Load<Texture2D>("greyTribbleDead");
             tribbleOrangeTexture = Content.Load<Texture2D>("tribbleOrange");
             creamTribbleCountFont = Content.Load<SpriteFont>("creamCounterFont");
-            tribbleIntroTexture = Content.Load<Texture2D>("tribbleStartPage");
+            tribbleIntroTexture = Content.Load<Texture2D>("tribbleStartingScreen");
             tribbleEndScreenTexture = Content.Load<Texture2D>("gameEndScreen");
             
             
@@ -332,7 +332,7 @@ namespace Graphics_Topic_3_Animation
                 {
                     tribbleCreamDeathCount++;
 
-                    if (tribbleCreamDeathCount > 50)
+                    if (tribbleCreamDeathCount > 25)
                     {
                         creamTribbleDead = true;
                         tribbleCreamSpeed.X = 0;
